@@ -82,8 +82,18 @@ function loop(now){if(state!=='playing')return;let dt=Math.min((now-last)/1000,.
  g.fillStyle='#171923dd';g.fillRect(18,16,260,62);g.fillStyle='white';g.font='bold 17px sans-serif';g.fillText('식장까지 버티기',32,41);g.fillStyle='#ffe36e';g.font='bold 24px sans-serif';g.fillText(Math.max(0,TOTAL-time).toFixed(1)+'초',32,67);g.fillStyle='#171923bb';g.fillRect(300,25,620,18);g.fillStyle='#ff4e88';g.fillRect(300,25,620*time/TOTAL,18);g.strokeStyle='white';g.lineWidth=2;g.strokeRect(300,25,620,18);g.fillStyle='#171923';g.font='bold 13px sans-serif';g.fillText('통과한 장애물: '+passed+'개',760,68);requestAnimationFrame(loop)}
 // 모바일 브라우저의 터치 입력을 우선 처리하고, 클릭 입력도 함께 지원
 const bindTap=(el,fn)=>{
-  el.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fn();});
-  el.addEventListener('click',e=>{e.preventDefault();fn();});
+  // 모바일은 touchstart에서 즉시 처리하고, preventDefault로 합성 click 중복 실행을 막는다.
+  el.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    fn();
+  },{passive:false});
+  // 마우스/키보드 접근성 및 터치 이벤트 미지원 환경용
+  el.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    fn();
+  });
 };
 bindTap(document.querySelector('#start'),start);
 bindTap(document.querySelector('#jump'),jump);
